@@ -5,6 +5,11 @@ using System.IO;
 
 namespace WordLadder
 {
+    /// <summary>
+    /// Для каждого шага цепочки составляется список всех слов, образованных из слов предыдущего шага изменением одной буквы.
+    /// При этом уже использованные слова удаляются из словаря, чтобы избавиться от повторов в цепочке и сократить размер списков.
+    /// Если в очередном шаге присутствует конечное слово, поиск останавливается, из каждого шага выбирается одно слово, чтобы составить корректную цепочку.
+    /// </summary>
     public class Program
     {
         const string inputFile = @"input.txt";
@@ -31,6 +36,7 @@ namespace WordLadder
 
             int length = start.Length;
 
+            // Из словаря выбираются только те слова, длина которых равна начальному
             dictionary = (from w in File.ReadAllLines(dictionaryFile) where w.Length == length select w).ToList();
             dictionary.Remove(start);
 
@@ -45,10 +51,10 @@ namespace WordLadder
                 {
                     if (!possibleSymbols[i].Contains(word[i]))
                         possibleSymbols[i].Add(word[i]);
-                }     
+                }
             }
 
-            // В шаге цепочки хранятся все варианты слов, образованные из слов предыдущего шага
+            // В шаге цепочки хранятся все варианты слов, образованные из слов предыдущего шага изменением одной буквы
             var steps = new List<List<string>>();
             var step = new List<string>() { start };
             bool ladderCompleted = false;
@@ -64,7 +70,7 @@ namespace WordLadder
                 {
                     ladderCompleted = true;
                     break;
-                } 
+                }
             }
 
             if (!ladderCompleted)
@@ -80,7 +86,7 @@ namespace WordLadder
             }
 
             Console.WriteLine(start + "\n" + ladder);
-            
+
             Console.ReadLine();
         }
 
@@ -114,6 +120,7 @@ namespace WordLadder
                         if (dictionary.Contains(current))
                         {
                             step.Add(current);
+                            // Чтобы слова в цепочке не повторялись, использованные удаляются из словаря
                             dictionary.Remove(current);
                         }
                     }
@@ -124,11 +131,11 @@ namespace WordLadder
         }
 
         /// <summary>
-        /// Функция находит в списке вариантов предыдущего шага цепочки слово, отличающееся от данного на один символ
+        /// Функция ищет в списке слов вариант, отличающийся от данного на один символ
         /// </summary>
         /// <param name="step">Предыдущий шаг</param>
         /// <param name="child">Слово, для которого нужно найти родителя</param>
-        /// <returns>Возвращает "родителя" данного слова</returns>
+        /// <returns>Возвращает слово-родителя данного, если такое присутствует в списке, иначе null</returns>
         public static string GetParent(List<string> step, string child)
         {
             foreach (string word in step)
